@@ -17,11 +17,15 @@ let 我的优选 = [
   "www.shopify.com",
   "fbi.gov"
 ]
-let 我的优选TXT = [
-    //"https://raw.githubusercontent.com/ImLTHQ/edge-tunnel/main/Domain.txt",
-    //"https://raw.githubusercontent.com/ImLTHQ/edge-tunnel/main/HK.txt"
-]
-我的优选TXT = globalThis.TXT_URL || 我的优选TXT
+let 我的优选TXT = globalThis.TXT_URL || "";
+
+if (我的优选TXT) {
+    我的优选TXT = 我的优选TXT.split(" ")
+                         .map(url => url.trim())
+                         .filter(url => url !== "");
+} else {
+    我的优选TXT = [];
+}
     //使用TXT时脚本内部填写的节点无效，二选一
     // 格式: 地址/域名:端口#节点名称  端口不填默认443 节点名称不填则使用默认节点名称，任何都不填使用自身域名
 
