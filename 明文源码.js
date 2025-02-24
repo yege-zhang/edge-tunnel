@@ -23,7 +23,7 @@ let 反代地址 = "ts.hpc.tw:443"
 let 启用SOCKS5反代 = false
     // 启用后原始反代将失效
 let 启用SOCKS5全局反代 = false
-let 我的SOCKS5账号 = "shulng:shulng@188.68.234.53:21440"
+let 我的SOCKS5账号 = ""
     // 格式：账号:密码@地址:端口
 
 let 伪装网页 = "www.baidu.com"
