@@ -20,19 +20,20 @@ let 启用反代功能 = true
 let 反代地址 = "ts.hpc.tw:443"
     // 格式：地址:端口
 
-let 启用SOCKS5反代 = false
-    // 启用后原始反代将失效
+
 let 启用SOCKS5全局反代 = false
 let 我的SOCKS5账号 = ""
     // 格式：账号:密码@地址:端口
 
 let 伪装网页 = "www.baidu.com"
 
-if (我的SOCKS5账号) {
-  启用SOCKS5反代 = true
-} else {
-  启用SOCKS5反代 = false
-}
+let 启用SOCKS5反代 = false
+    // 启用后原始反代将失效
+  if (我的SOCKS5账号) {
+    启用SOCKS5反代 = true
+  } else {
+    启用SOCKS5反代 = false
+  }
 
 // 网页入口
 export default {
