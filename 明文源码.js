@@ -28,13 +28,13 @@ let 我的SOCKS5账号 = ""
 
 let 伪装网页 = "www.baidu.com"
 
-// 从环境变量读取配置
-const SUB_PATH = env.SUB_PATH || 订阅路径
-const SUB_NAME = env.SUB_NAME || 默认节点名称
-const SUB_UUID = env.SUB_UUID || 我的UUID
-const TXT_URL = env.TXT_URL || 我的优选TXT
-const MY_SOCKS5 = env.MY_SOCKS5 || 我的SOCKS5账号
-const FAKE_WEB = env.FAKE_WEB || 伪装网页
+// 从环境变量读取配置，如果环境变量未定义，则使用默认值
+const SUB_PATH = typeof env !== 'undefined' && env.SUB_PATH ? env.SUB_PATH : 订阅路径
+const SUB_NAME = typeof env !== 'undefined' && env.SUB_NAME ? env.SUB_NAME : 默认节点名称
+const SUB_UUID = typeof env !== 'undefined' && env.SUB_UUID ? env.SUB_UUID : 我的UUID
+const TXT_URL = typeof env !== 'undefined' && env.TXT_URL ? env.TXT_URL : 我的优选TXT
+const MY_SOCKS5 = typeof env !== 'undefined' && env.MY_SOCKS5 ? env.MY_SOCKS5 : 我的SOCKS5账号
+const FAKE_WEB = typeof env !== 'undefined' && env.FAKE_WEB ? env.FAKE_WEB : 伪装网页
 
 if (MY_SOCKS5) {
   启用SOCKS5反代 = true
