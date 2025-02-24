@@ -31,5 +31,5 @@ jobs:
         run: |
           cd target
           git add .
-          git commit -m "Sync from ImLTHQ/edge-tunnel" || echo "No changes to commit"
+          git commit -m "从上游同步" || echo "没有更改"
           git push origin main
