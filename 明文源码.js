@@ -1,56 +1,56 @@
 import { connect } from "cloudflare:sockets"
 // 配置区块
-// 从环境变量读取配置，如果环境变量不存在，则使用默认值
-const 订阅路径 = env.SUB_PATH || "sub"
-      // 订阅路径 域名/订阅路径
-const 默认节点名称 = env.SUB_NAME || "节点"
-      // 默认节点名称
-const 我的UUID = env.SUB_UUID || "550e8400-e29b-41d4-a716-446655440000"
-      // 用于验证的UUID
+let 订阅路径 = "sub"
+  // 订阅路径 域名/订阅路径
+let 默认节点名称 = "节点"
+  // 默认节点名称
+let 我的UUID = "550e8400-e29b-41d4-a716-446655440000"
+  // 用于验证的UUID
 
-let 我的优选 = [
-    "time.is",
-    "www.shopify.com",
-    "fbi.gov"
+let 我的优选 = []
+    // 格式: 地址/域名:端口#节点名称  端口不填默认443 节点名称不填则使用默认节点名称，任何都不填使用自身域名
+let 我的优选TXT = [
+    "https://raw.githubusercontent.com/ImLTHQ/edge-tunnel/main/Domain.txt",
+    "https://raw.githubusercontent.com/ImLTHQ/edge-tunnel/main/HK.txt"
 ]
-const 我的优选TXT = env.TXT_URL || ""
-      //使用TXT时脚本内部填写的节点无效，二选一
-      // 格式: 地址/域名:端口#节点名称  端口不填默认443 节点名称不填则使用默认节点名称，任何都不填使用自身域名
-
-我的优选TXT = [
-//"https://raw.githubusercontent.com/ImLTHQ/edge-tunnel/main/Domain.txt",
-//"https://raw.githubusercontent.com/ImLTHQ/edge-tunnel/main/HK.txt"
-]
+    //使用TXT时脚本内部填写的节点无效，二选一
 
 let 启用反代功能 = true
     // 是否启用反代功能 (总开关)
 let 反代地址 = "ts.hpc.tw:443"
     // 格式：地址:端口
 
-let 启用SOCKS5全局反代 = false
-const 我的SOCKS5账号 = env.MY_SOCKS5 || ""
-      // 格式：账号:密码@地址:端口
-
-const 伪装网页 = env.FAKE_WEB || "www.baidu.com"
-
 let 启用SOCKS5反代 = false
     // 启用后原始反代将失效
-  if (我的SOCKS5账号) {
-    启用SOCKS5反代 = true
-  } else {
-    启用SOCKS5反代 = false
-  }
+let 启用SOCKS5全局反代 = false
+let 我的SOCKS5账号 = ""
+    // 格式：账号:密码@地址:端口
 
+let 伪装网页 = "www.baidu.com"
+
+// 从环境变量读取配置
+const SUB_PATH = env.SUB_PATH || 订阅路径
+const SUB_NAME = env.SUB_NAME || 默认节点名称
+const SUB_UUID = env.SUB_UUID || 我的UUID
+const TXT_URL = env.TXT_URL || 我的优选TXT
+const MY_SOCKS5 = env.MY_SOCKS5 || 我的SOCKS5账号
+const FAKE_WEB = env.FAKE_WEB || 伪装网页
+
+if (MY_SOCKS5) {
+  启用SOCKS5反代 = true
+} else {
+  启用SOCKS5反代 = false
+}
 // 网页入口
 export default {
   async fetch(访问请求) {
     const 读取我的请求标头 = 访问请求.headers.get("Upgrade")
     const url = new URL(访问请求.url)
     if (!读取我的请求标头 || 读取我的请求标头 !== "websocket") {
-      if (我的优选TXT.length > 0) {
+      if (TXT_URL.length > 0) {
         我的优选 = (
           await Promise.all(
-            我的优选TXT.map((url) =>
+            TXT_URL.map((url) =>
               fetch(url).then((response) =>
                 response.ok
                   ? response.text().then((text) =>
@@ -69,7 +69,7 @@ export default {
         我的优选 = [...new Set(我的优选)]
       }
 
-      if (url.pathname === `/${订阅路径}`) {
+      if (url.pathname === `/${SUB_PATH}`) {
         const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase()
         const 配置生成器 = {
           v2ray: v2ray配置文件,
@@ -84,7 +84,7 @@ export default {
           headers: { "Content-Type": "text/plain;charset=utf-8" },
         })
       } else {
-          url.hostname = 伪装网页
+          url.hostname = FAKE_WEB
           url.protocol = "https:"
           访问请求 = new Request(url, 访问请求)
           return fetch(访问请求)
@@ -120,7 +120,7 @@ function 使用64位加解密(还原混淆字符) {
 //第二步，解读VL协议数据，创建TCP握手
 async function 解析VL标头(VL数据, TCP接口) {
   if (
-    验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== 我的UUID
+    验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== SUB_UUID
   ) {
     return null
   }
@@ -260,7 +260,7 @@ async function 建立传输管道(WS接口, TCP接口, 写入初始数据) {
 // SOCKS5部分
 async function 创建SOCKS5接口(识别地址类型, 访问地址, 访问端口) {
   const { username, password, hostname, port } = await 获取SOCKS5账号(
-    我的SOCKS5账号
+    MY_SOCKS5
   )
   const SOCKS5接口 = connect({ hostname, port })
   try {
@@ -365,11 +365,11 @@ function v2ray配置文件(hostName) {
   return 我的优选
     .map((获取优选) => {
       const [主内容] = 获取优选.split("@")
-      const [地址端口, 节点名字 = 默认节点名称] = 主内容.split("#")
+      const [地址端口, 节点名字 = SUB_NAME] = 主内容.split("#")
       const 拆分地址端口 = 地址端口.split(":")
       const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443
       const 地址 = 拆分地址端口.join(":")
-      return `vless://${我的UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${节点名字}`
+      return `vless://${SUB_UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${节点名字}`
     })
     .join("\n")
 }
@@ -380,7 +380,7 @@ function clash配置文件(hostName) {
   const 生成节点 = (我的优选) => {
     return 我的优选.map((获取优选, index) => {
       const [主内容] = 获取优选.split("@")
-      const [地址端口, 节点名字 = `${默认节点名称} ${index + 1}`] = 主内容.split("#")
+      const [地址端口, 节点名字 = `${SUB_NAME} ${index + 1}`] = 主内容.split("#")
       const 拆分地址端口 = 地址端口.split(":")
       const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443
       const 地址 = 拆分地址端口.join(":").replace(/^\[(.+)\]$/, "$1")
@@ -389,7 +389,7 @@ function clash配置文件(hostName) {
   type: vless
   server: ${地址}
   port: ${端口}
-  uuid: ${我的UUID}
+  uuid: ${SUB_UUID}
   udp: false
   tls: true
   sni: ${hostName}
