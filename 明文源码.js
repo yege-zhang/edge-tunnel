@@ -28,6 +28,12 @@ let 我的SOCKS5账号 = ""
 
 let 伪装网页 = "www.baidu.com"
 
+if (我的SOCKS5账号) {
+  启用SOCKS5反代 = true
+} else {
+  启用SOCKS5反代 = false
+}
+
 // 网页入口
 export default {
   async fetch(访问请求) {
