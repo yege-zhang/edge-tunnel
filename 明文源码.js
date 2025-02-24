@@ -35,15 +35,14 @@ if (我的SOCKS5账号) {
 }
 // 网页入口
 export default {
-  async fetch(访问请求) {
-    
-    const 订阅路径 = env.SUB_PATH || 订阅路径
-    const 默认节点名称 = env.SUB_NAME || 默认节点名称
-    const 我的UUID = env.SUB_UUID || 我的UUID
-    const 我的优选TXT = env.TXT_URL || 我的优选TXT
-    const 我的SOCKS5账号 = env.MY_SOCKS5 || 我的SOCKS5账号
-    const 伪装网页 = env.FAKE_WEB || 伪装网页
+  订阅路径 : env.SUB_PATH || 订阅路径,
+  默认节点名称 : env.SUB_NAME || 默认节点名称,
+  我的UUID : env.SUB_UUID || 我的UUID,
+  我的优选TXT : env.TXT_URL || 我的优选TXT,
+  我的SOCKS5账号 : env.MY_SOCKS5 || 我的SOCKS5账号,
+  伪装网页 : env.FAKE_WEB || 伪装网页,
 
+  async fetch(访问请求) {
     const 读取我的请求标头 = 访问请求.headers.get("Upgrade")
     const url = new URL(访问请求.url)
     if (!读取我的请求标头 || 读取我的请求标头 !== "websocket") {
