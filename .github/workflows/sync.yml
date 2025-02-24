@@ -1,38 +1,35 @@
-name: Sync-repo
+name: 上游同步
+
+permissions:
+  contents: write
 
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: "0 0 * * *" # 每天 UTC 时间 0 点（北京时间早上 8 点）运行一次
+  workflow_dispatch: # 允许手动触发
 
-jobs:
-  sync:
+jobs: # 任务
+  sync_latest_from_upstream:
+    name: 从上游仓库同步最新提交
     runs-on: ubuntu-latest
+    if: ${{ github.event.repository.fork }} # 条件判断：只有当仓库是 Fork 的时候才运行
+
     steps:
-      - name: Checkout repositories
+      - name: 检出目标仓库
         uses: actions/checkout@v3
+
+      - name: 同步上游更改
+        id: sync
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
         with:
-          path: target
+          upstream_sync_repo: ImLTHQ/edge-tunnel
+          upstream_sync_branch: main
+          target_sync_branch: main
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          test_mode: false # 测试模式：关闭，即正式同步
 
-      - name: Checkout source repository
-        uses: actions/checkout@v3
-        with:
-          repository: ImLTHQ/edge-tunnel
-          path: source
-
-      - name: Sync files
-        run: rsync -av --delete source/ target/
-
-      - name: Configure Git
-        working-directory: target
+      - name: 同步检查
+        if: failure()
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
-
-      - name: Commit and push changes
-        working-directory: target
-        run: |
-          git add .
-          git commit -m "从上游同步"
-          git remote set-url origin https://github.com/${{ github.repository }}
-          git push origin main
+          echo "[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，你需要手动 Sync Fork 一次" # 输出错误信息
+          exit 1 # 退出，表示任务失败
