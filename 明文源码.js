@@ -85,7 +85,7 @@ export default {
             访问请求 = new Request(url, 访问请求);
             return fetch(访问请求);
           } else {
-            return new Response(生成项目介绍页面,{
+            return new Response(生成项目介绍页面(),{
               status: 200,
               headers: { "Content-Type": "text/html;charset=utf-8" },});
           }
